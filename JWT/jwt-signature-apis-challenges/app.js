@@ -21,17 +21,15 @@ app.get("/", (req, res) => {
 
 app.post('/jwt/none', (req, res) => { //None endpoint
   const { jwt_token } = req.body;
-  let secret_key = '';
+  let secret_key = '885ae2060fbedcfb491c5e8aafc92cab5a8057b3d4c39655acce9d4f09280a20';
   if (jwt_token == null) {
     res.status(400).send('Send a HTTP request with a body with the format: {jwt: "< Place the JWT to test here >"}');
   } else {
     const jwt_b64_dec = JWT.decode(jwt_token, { complete: true });
-    if (jwt_b64_dec.header.alg == 'HS256') {
-      secret_key = '885ae2060fbedcfb491c5e8aafc92cab5a8057b3d4c39655acce9d4f09280a20';
-    } else if (jwt_b64_dec.header.alg == 'none') {
-      secret_key = '';
+    if (jwt_b64_dec.header.alg !== 'HS256') {
+      res.status(400).send('Unsupported algorithm!');
     }
-    JWT.verify(jwt_token, secret_key, { algorithms: ['none', 'HS256'], complete: true, audience: 'https://127.0.0.1/jwt/none' }, (err, decoded_token) => {
+    JWT.verify(jwt_token, secret_key, { algorithms: ['HS256'], complete: true, audience: 'https://127.0.0.1/jwt/none' }, (err, decoded_token) => {
       if (err) {
         res.status(400).json(err);
       } else {
